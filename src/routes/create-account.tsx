@@ -1,5 +1,8 @@
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import React, { useState } from 'react';
 import { styled } from "styled-components";
+import { auth } from '../firebase';
+import { useNavigate } from 'react-router-dom';
 
 const Wrapper = styled.div`
     height: 100%;
@@ -38,45 +41,50 @@ const Input = styled.input`
 
 `;
 
+const Error = styled.span`
+    font-weight: 600;
+    color: tomato;
+`;
+
 export default function CreateAccount() {
+    const navigate = useNavigate();
     const [isLoading, setLoading] = useState(false);
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const onChange = (e : React.ChangeEvent<HTMLInputElement>) => {
-        const { target: {name, value} } = e;
+    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { target: {name, value}, } = e;
         if(name === "name") {
-            setName(value)
+            setName(value);
         } else if (name === "email") {
             setEmail(value);
         } else if(name === "password") {
             setPassword(value);
         }
     }
-    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if(isLoading || name === "" || email === "" || password === "") return;
         try {
-            //create an account
-            //set the name of the user
-            //redirect to the home page
+            const credentials = await createUserWithEmailAndPassword(auth, email, password)
+            console.log(credentials.user);
+            await updateProfile(credentials.user, {
+                displayName: name,
+            });
+            navigate("/");
         } catch(e) {
             //setError
         }
         finally {
             setLoading(false);
         }
-        // create an account
-        //set the name of the user
-        //redirect to the home page
-        
-        console.log(name, email, password);
     }
     return <Wrapper>
-        <Title>Log Into 🙅</Title>
+        <Title>Join 𝕏</Title>
         <Form onSubmit={onSubmit}>
-            <Input name='name' value={name} placeholder='Name' type='text' required />
-            <Input name='email' value={email}  placeholder='Email' type='email' required />
+            <Input onChange={onChange} name='name' value={name} placeholder='Name' type='text' required />
+            <Input onChange={onChange} name='email' value={email}  placeholder='Email' type='email' required />
             <Input onChange={onChange} name='password' value={password}  placeholder='Password' type='password' />
             <Input type='submit' value={isLoading ? "Loading..." : "Create Account"} />
         </Form>
