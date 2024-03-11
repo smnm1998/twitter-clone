@@ -10,6 +10,7 @@ import reset from 'styled-reset';
 import { useEffect } from 'react';
 import LoadingScreen from './components/loading-screen';
 import { auth } from './firebase';
+import ProtectedRoute from './components/protected-router';
 
 const router = createBrowserRouter([
   {
@@ -17,12 +18,16 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        path: "", // 홈 페이지를 나타냄
-        element: <Home />,
+        path: "",
+        element: <ProtectedRoute>
+          <Home />
+        </ProtectedRoute>
       },
       {
-        path: "profile", // 프로필 페이지에 대한 경로 수정
-        element: <Profile />
+        path: "profile",
+        element: <ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>
       }
     ]
   },
@@ -62,7 +67,7 @@ function App() {
     await auth.authStateReady();
     setTimeout(() => setIsLoding(false), 2000);
   }
-  useEffect(() => {init()}, )
+  useEffect(() => {init()}, []);
   return (
     <Wrapper>
       <GlobalStyles />

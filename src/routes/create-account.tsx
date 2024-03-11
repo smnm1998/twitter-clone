@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 import { styled } from "styled-components";
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import { FirebaseError } from 'firebase/app';
+
+
 
 const Wrapper = styled.div`
     height: 100%;
@@ -74,7 +77,9 @@ export default function CreateAccount() {
             });
             navigate("/");
         } catch(e) {
-            //setError
+            if(e instanceof FirebaseError) {
+                setError(e.message);
+            }
         }
         finally {
             setLoading(false);
